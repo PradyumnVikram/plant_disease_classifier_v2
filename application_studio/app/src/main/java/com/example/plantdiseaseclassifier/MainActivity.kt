@@ -25,12 +25,28 @@ import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import androidx.core.graphics.scale
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
+import android.app.Activity
+import android.Manifest
 
 data class ClassEntry(val col1: String, val col2: String)
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewBinding: ActivityMainBinding
     private lateinit var cameraController: LifecycleCameraController
+    private val REQUEST_ENABLE_BT = 1
+
+//    private val bluetoothEnableLauncher = registerForActivityResult(
+//        ActivityResultContracts.StartActivityForResult()
+//    ) { result ->
+//        if (result.resultCode == Activity.RESULT_OK) {
+//            // Bluetooth was enabled
+//        } else {
+//            Toast.makeText(this, "Please enable Bluetooth to proceed", Toast.LENGTH_SHORT).show()
+//        }
+//    }
 
 
 
@@ -49,6 +65,32 @@ class MainActivity : ComponentActivity() {
         viewBinding.pictureButton.setOnClickListener {
             takePhoto(classData)
         }
+
+        // getSystemService is called a context object to provide access to the Bluetooth service
+        val bluetoothManager : BluetoothManager = getSystemService(BluetoothManager::class.java)
+        val bluetoothAdapter : BluetoothAdapter? = bluetoothManager.getAdapter()
+        if (bluetoothAdapter == null){
+            Log.e("BluetoothTest", "Bluetooth connection failed")
+            Toast.makeText(this, "Bluetooth connection failed", Toast.LENGTH_SHORT).show()
+        }
+
+        // Now have to check if bluetooth is enabled ON SYS
+
+//        if (bluetoothAdapter?.isEnabled == false) {
+//            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+//            bluetoothEnableLauncher.launch(enableBtIntent)
+//        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+            if (bluetoothAdapter?.isEnabled == false) {
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            }
+        } else {
+            // Request BLUETOOTH_CONNECT permission first
+            activityResultLauncher.launch(arrayOf(Manifest.permission.BLUETOOTH_CONNECT))
+        }
+
 
     }
 
