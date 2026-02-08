@@ -258,7 +258,7 @@ class MainActivity : ComponentActivity() {
             var entry = ""
             val maxIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: -1
             val confidence = if (maxIndex >= 0) probabilities[maxIndex] else 0f
-            if (confidence > 0.65) {
+            if (confidence > 0.0) {
 
 
                 viewBinding.confidence.text = "Confidence: $confidence"
